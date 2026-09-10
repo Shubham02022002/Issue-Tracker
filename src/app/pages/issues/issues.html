@@ -1,0 +1,35 @@
+<div class="min-h-screen bg-gray-50">
+  <main class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
+    <header class="mb-8">
+      <h1 class="text-2xl font-semibold tracking-tight text-gray-900">Issue Tracker</h1>
+
+      <p class="mt-1 text-sm text-gray-500">Manage and keep track of your issues.</p>
+    </header>
+
+    <section>
+      <div class="mb-4 flex items-center space-x-2">
+        <h2 class="text-sm font-semibold text-gray-900">My Issues</h2>
+
+        <span class="text-sm text-gray-500"> ({{ issues().length }}) </span>
+      </div>
+
+      <div class="space-y-3">
+        @for (issue of issues(); track issue.id) {
+          <app-issue-card [issue]="issue" (deletedIssue)="onDeletedIssue($event)" />
+        } @empty {
+          <div
+            class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center"
+          >
+            <p class="text-sm font-medium text-gray-900">No issues yet</p>
+
+            <p class="mt-1 text-sm text-gray-500">Create an issue to get started.</p>
+          </div>
+        }
+      </div>
+    </section>
+
+    <section class="mt-8">
+      <app-create-issue-form (issueCreated)="onNewIssue($event)" />
+    </section>
+  </main>
+</div>
