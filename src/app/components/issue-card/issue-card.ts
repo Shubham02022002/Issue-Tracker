@@ -1,5 +1,5 @@
 import { Component, input, output } from '@angular/core';
-import { Issue } from '../../app';
+import { Issue } from '../../models/issue';
 
 @Component({
   imports: [],

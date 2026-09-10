@@ -1,16 +1,10 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { IssueCard } from './components/issue-card/issue-card';
-
-export interface Issue {
-  id: number;
-  title: string;
-  description: string;
-  status: string;
-  priority: string;
-}
+import { CreateIssue, Issue } from './models/issue';
+import { CreateIssueForm } from './components/create-issue-form/create-issue-form';
 
 @Component({
-  imports: [IssueCard],
+  imports: [IssueCard, CreateIssueForm],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -56,5 +50,12 @@ export class App {
 
   onDeletedIssue(id: number): void {
     this.issues.update((issues) => issues.filter((issue) => issue.id !== id));
+  }
+
+  onNewIssue(issue: CreateIssue): void {
+    const id =
+      this.issues().length > 0 ? Math.max(...this.issues().map((issue) => issue.id)) + 1 : 1;
+    const newIssue: Issue = { ...issue, id };
+    this.issues.update((issues) => [...issues, newIssue]);
   }
 }
