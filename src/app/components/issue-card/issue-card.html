@@ -1,0 +1,16 @@
+<ul class="border m-2 border-gray-300 rounded p-4 mb-4">
+  <li class="font-bold">{{ issue().title }}</li>
+  <li class="font-bold">{{ issue().description }}</li>
+  <div class="flex gap-2.5 mt-2 justify-between">
+    <div class="flex gap-2.5">
+      <li class="font-bold">{{ issue().status }}</li>
+      <li class="font-bold">{{ issue().priority }}</li>
+    </div>
+    <button
+      class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+      (click)="handleDelete()"
+    >
+      Delete
+    </button>
+  </div>
+</ul>

@@ -4,15 +4,8 @@
 
 <h2 class="text-xl text-gray-700 font-bold mb-4">My Issues</h2>
 
-@for (issue of issues; track issue.id) {
-  <ul class="border m-2 border-gray-300 rounded p-4 mb-4">
-    <li class="font-bold">{{ issue.title }}</li>
-    <li class="font-bold">{{ issue.description }}</li>
-    <div class="flex gap-2.5 mt-2">
-      <li class="font-bold">{{ issue.status }}</li>
-      <li class="font-bold">{{ issue.priority }}</li>
-    </div>
-  </ul>
+@for (issue of issues(); track issue.id) {
+  <app-issue-card [issue]="issue" (deletedIssue)="onDeletedIssue($event)" />
 } @empty {
   <li>No issue at the moment.</li>
 }

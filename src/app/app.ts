@@ -1,7 +1,7 @@
-import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, computed, signal } from '@angular/core';
+import { IssueCard } from './components/issue-card/issue-card';
 
-interface Issue {
+export interface Issue {
   id: number;
   title: string;
   description: string;
@@ -10,14 +10,13 @@ interface Issue {
 }
 
 @Component({
-  imports: [],
+  imports: [IssueCard],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('issue-tracker');
-  issues: Issue[] = [
+  issues = signal<Issue[]>([
     {
       id: 1,
       title: 'Fix bug in user authentication',
@@ -53,5 +52,9 @@ export class App {
       priority: 'medium',
       description: 'Implement a search feature to allow users to find issues quickly.',
     },
-  ];
+  ]);
+
+  onDeletedIssue(id: number): void {
+    this.issues.update((issues) => issues.filter((issue) => issue.id !== id));
+  }
 }
