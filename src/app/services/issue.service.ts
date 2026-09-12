@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { Issue } from '../models/issue';
+import { Issue, CreateIssue } from '../models/issue';
 
 @Injectable({
   providedIn: 'root',
@@ -43,7 +43,24 @@ export class IssueService {
     },
   ]);
 
+  addIssue(issue: CreateIssue): Issue {
+    const id =
+      this.issues().length > 0 ? Math.max(...this.issues().map((issue) => issue.id)) + 1 : 1;
+
+    const newIssue: Issue = { ...issue, id };
+
+    this.issues.update((issues) => [...issues, newIssue]);
+
+    return newIssue;
+  }
+
   deleteIssue(issueId: number) {
     this.issues.update((issues) => issues.filter((issue) => issue.id !== issueId));
+  }
+
+  updateIssue(updatedIssue: Issue) {
+    this.issues.update((issues) =>
+      issues.map((issue) => (issue.id === updatedIssue.id ? updatedIssue : issue)),
+    );
   }
 }

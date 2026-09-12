@@ -1,35 +1,132 @@
-<div class="min-h-screen bg-gray-50">
-  <main class="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6">
-    <header class="mb-8">
-      <h1 class="text-2xl font-semibold tracking-tight text-gray-900">Issue Tracker</h1>
-
-      <p class="mt-1 text-sm text-gray-500">Manage and keep track of your issues.</p>
-    </header>
-
-    <section>
-      <div class="mb-4 flex items-center space-x-2">
-        <h2 class="text-sm font-semibold text-gray-900">My Issues</h2>
-
-        <span class="text-sm text-gray-500"> ({{ issues().length }}) </span>
+<div class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-50">
+  <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <header class="mb-10">
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-4xl font-bold tracking-tight text-gray-900">Issues</h1>
+          <p class="mt-2 text-base text-gray-600">Track and manage your project issues efficiently</p>
+        </div>
+        <button
+          type="button"
+          (click)="toggleCreateForm()"
+          aria-label="Create new issue"
+          class="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+        >
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          New Issue
+        </button>
       </div>
 
-      <div class="space-y-3">
-        @for (issue of issues(); track issue.id) {
-          <app-issue-card [issue]="issue" (deletedIssue)="onDeletedIssue($event)" />
-        } @empty {
-          <div
-            class="rounded-xl border border-dashed border-gray-300 bg-white px-6 py-10 text-center"
-          >
-            <p class="text-sm font-medium text-gray-900">No issues yet</p>
+      <div class="mt-8 flex items-center gap-3">
+        <div class="relative flex-1 max-w-md">
+          <svg class="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search issues..."
+            [(ngModel)]="searchQuery"
+            aria-label="Search issues"
+            class="block w-full rounded-lg border-0 bg-white py-3 pl-11 pr-4 text-sm text-gray-900 shadow-sm ring-1 ring-inset ring-gray-200 transition placeholder:text-gray-400 focus:ring-2 focus:ring-gray-900"
+          />
+        </div>
 
-            <p class="mt-1 text-sm text-gray-500">Create an issue to get started.</p>
+        <div class="flex gap-2">
+          <button
+            type="button"
+            [class]="selectedStatus() === null ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50'"
+            (click)="filterByStatus(null)"
+            class="rounded-lg px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          >
+            All
+          </button>
+          <button
+            type="button"
+            [class]="selectedStatus() === 'open' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50'"
+            (click)="filterByStatus('open')"
+            class="rounded-lg px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          >
+            Open
+          </button>
+          <button
+            type="button"
+            [class]="selectedStatus() === 'in_progress' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50'"
+            (click)="filterByStatus('in_progress')"
+            class="rounded-lg px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          >
+            In Progress
+          </button>
+          <button
+            type="button"
+            [class]="selectedStatus() === 'closed' ? 'bg-gray-900 text-white' : 'bg-white text-gray-700 ring-1 ring-inset ring-gray-200 hover:bg-gray-50'"
+            (click)="filterByStatus('closed')"
+            class="rounded-lg px-4 py-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+          >
+            Closed
+          </button>
+        </div>
+      </div>
+    </header>
+
+    @if (showCreateForm()) {
+      <section class="mb-10">
+        <app-create-issue-form (issueCreated)="onNewIssue($event)" (formClosed)="toggleCreateForm()" />
+      </section>
+    }
+
+    <section>
+      <div class="mb-6 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-semibold text-gray-900">{{ getFilterTitle() }}</h2>
+          <span class="inline-flex items-center rounded-full bg-gray-100 px-3 py-1 text-xs font-medium text-gray-700">
+            {{ filteredIssues().length }}
+          </span>
+        </div>
+
+        <label for="sort-select" class="sr-only">Sort issues by</label>
+        <select
+          id="sort-select"
+          [(ngModel)]="sortBy"
+          class="rounded-lg border-0 bg-white py-2 pl-3 pr-10 text-sm font-medium text-gray-700 shadow-sm ring-1 ring-inset ring-gray-200 transition focus:ring-2 focus:ring-gray-900"
+        >
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="priority">Priority</option>
+        </select>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (issue of filteredIssues(); track issue.id) {
+          <app-issue-card
+            [issue]="issue"
+            (deletedIssue)="onDeletedIssue($event)"
+            (updatedIssue)="onUpdatedIssue($event)"
+          />
+        } @empty {
+          <div class="col-span-full">
+            <div class="rounded-2xl border-2 border-dashed border-gray-200 bg-white/50 px-6 py-16 text-center backdrop-blur-sm">
+              <svg class="mx-auto h-12 w-12 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 class="mt-4 text-base font-semibold text-gray-900">No issues found</h3>
+              <p class="mt-2 text-sm text-gray-500">Get started by creating your first issue</p>
+              <button
+                type="button"
+                (click)="toggleCreateForm()"
+                aria-label="Create your first issue"
+                class="mt-6 inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-gray-800"
+              >
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Create Issue
+              </button>
+            </div>
           </div>
         }
       </div>
     </section>
-
-    <section class="mt-8">
-      <app-create-issue-form (issueCreated)="onNewIssue($event)" />
-    </section>
-  </main>
+  </div>
 </div>

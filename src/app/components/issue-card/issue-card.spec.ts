@@ -12,6 +12,13 @@ describe('IssueCard', () => {
 
     fixture = TestBed.createComponent(IssueCard);
     component = fixture.componentInstance;
+    fixture.componentRef.setInput('issue', {
+      id: 1,
+      title: 'Test Issue',
+      description: 'Test Description',
+      status: 'open',
+      priority: 'high',
+    });
     await fixture.whenStable();
   });
 

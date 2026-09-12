@@ -10,6 +10,7 @@ import { CreateIssue } from '../../models/issue';
 })
 export class CreateIssueForm {
   issueCreated = output<CreateIssue>();
+  formClosed = output<void>();
 
   issueForm = new FormGroup({
     title: new FormControl('', Validators.required),
@@ -22,5 +23,10 @@ export class CreateIssueForm {
     if (this.issueForm.invalid) return;
     this.issueCreated.emit(this.issueForm.value as CreateIssue);
     this.issueForm.reset();
+  }
+
+  onCancel(): void {
+    this.issueForm.reset();
+    this.formClosed.emit();
   }
 }
